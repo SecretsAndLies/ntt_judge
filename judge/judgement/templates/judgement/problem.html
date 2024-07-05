@@ -1,0 +1,35 @@
+{% extends "judgement/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+<div class="problem">
+   <h2>{{problem.title}}</h2>
+  <body>{{problem.description}}</body> 
+  <!-- TODO make description shorter. -->
+  </div>
+
+<form action="/problem/{{problem.id}}" method="post">
+    <div class="form-group">
+    {% csrf_token %}
+    {{ form }}
+    {% if messages %}
+    <!-- TODO: make form box larger (or expand with typing?) -->
+    <!-- TODO: make red and better. -->
+     <!-- TODO: message refresh obvious? -->
+        {% for message in messages %}
+            <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+        {% endfor %}
+  {% endif %}
+  <button class="btn btn-primary" type="button" id="disabledSubmit" style="display: none;" disabled>
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    Testing...
+  </button>
+  <button class="btn btn-primary" type="button" id="submitButton" onclick="submitClicked()" enabled>
+    Test your code
+  </button>
+  <input type="submit" id="submitInput" style="display: none;">
+</form>
+
+{% endblock %}
+

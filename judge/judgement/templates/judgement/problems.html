@@ -1,0 +1,14 @@
+{% extends "judgement/layout.html" %}
+
+{% block body %}
+<h1>Select a problem</h1>
+
+{% for problem in problems %}
+<div class="problem">
+   <h3><a href="{% url 'problem' problem.id %}" > {{problem.title}} </a></h3>
+  <body>{{problem.description}}</body> 
+  <!-- TODO make description shorter. -->
+  </div>
+  {% endfor %}
+
+{% endblock %}
