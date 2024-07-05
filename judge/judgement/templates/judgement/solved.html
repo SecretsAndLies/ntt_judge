@@ -1,0 +1,15 @@
+{% extends "judgement/layout.html" %}
+{% load static %}
+
+{% block body %}
+<h1>Correct!</h1>
+<h2>Passed {{tests_passed}}/{{tests_total}} Tests</h2>
+<!-- TODO: add collapsable to hide this data on first click. -->
+<h2>Cycles: {{user_solution.cycles}} used, {{cycle_percentile}} percentile (Ranked {{cycle_rank}}/{{out_of_rank}})</h2>
+<p>TBD chart</p>
+<h2>ROM: {{user_solution.rom}} used, {{rom_percentile}} percentile (Ranked {{rom_rank}}/{{out_of_rank}})</h2>
+<p>TBD chart</p>
+<h2>RAM: {{user_solution.ram}} used, {{ram_percentile}} percentile (Ranked {{ram_rank}}/{{out_of_rank}})</h2>
+<p>TBD chart</p>
+
+{% endblock %}
