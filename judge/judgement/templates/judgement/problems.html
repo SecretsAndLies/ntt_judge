@@ -7,7 +7,7 @@
 <div class="problem">
    <h3><a href="{% url 'problem' problem.id %}" > {{problem.title}} </a></h3>
   <body>{{problem.description}}</body> 
-  <!-- TODO make description shorter. -->
+  <!-- TODO truncate description. -->
   </div>
   {% endfor %}
 

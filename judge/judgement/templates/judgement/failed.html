@@ -1,0 +1,9 @@
+{% extends "judgement/layout.html" %}
+{% load static %}
+
+{% block body %}
+<h1>Failed tests</h1>
+<h2>Passed {{tests_passed}}/{{tests_total}} Tests</h2>
+<!-- todo: details about the tests you failed starting with just the titles and descriptions -->
+<!-- todo: maybe a link back to the problem? -->
+{% endblock %}
