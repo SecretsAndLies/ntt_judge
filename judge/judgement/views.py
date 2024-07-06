@@ -13,6 +13,19 @@ import threading
 
 import inflect
 
+from math import floor
+
+
+import matplotlib
+matplotlib.use('Agg')  # Use the Agg backend for non-GUI rendering see https://stackoverflow.com/questions/69924881/userwarning-starting-a-matplotlib-gui-outside-of-the-main-thread-will-likely-fa
+matplotlib.rcParams['font.family'] = 'sans-serif'
+import matplotlib.pyplot as plt
+import io
+import base64
+from django.shortcuts import render
+from django.http import HttpResponse
+
+
 class Code:
     def __init__(self, code_text:str) -> None:
         self.code_text = code_text
@@ -41,11 +54,36 @@ class Test_Runner:
         # TODO: spin up a cpu emulator, and actually run the test
         # gathering the metrics. THIS IS WHERE THE MAGIC HAPPENS
         # if fail, populate info? expected reality? not sure.
-        self.passed=False 
+        self.passed=True 
         self.rom = random.randint(1,100)
         self.ram = random.randint(1,100)
         self.cycles = random.randint(1,1000)
 
+
+def generate_histogram(data, xlabel, bin_to_highlight):
+    # Create a histogram
+    plt.figure()
+    plt.style.use("dark_background")
+    plt.hist(data, bins=10, color="lightsteelblue")
+
+
+    n, bins, patches = plt.hist(data, bins=10, linewidth=0.5,edgecolor='black') # https://medium.com/@arseniytyurin/how-to-make-your-histogram-shine-69e432be39ca
+    patches[bin_to_highlight].set_fc('blue')
+
+    plt.xlabel(xlabel)
+    plt.ylabel("Frequency")
+
+    # Save the histogram to a BytesIO object
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+
+    # Encode the image in base64
+    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
+
+    # Render the image in the template
+    return image_base64
 
 def index(request):
     # todo: sort problems by requested, filter problems
@@ -94,7 +132,7 @@ def solution(request, problem_id: int, code:Code):
     solutions = Solution.objects.filter(problem=problem)
     # Tests Stuff
     tests = Test.objects.filter(problem=problem)
-    tests_passed = [0]
+    tests_passed = [0] # this is a list so I can pass it by reference.
     roms = []
     rams = []
     cycles = []
@@ -150,6 +188,13 @@ def solution(request, problem_id: int, code:Code):
     # Prettier number formats. Used to change 1 into 1st, and 99 into 99th etc.
     p = inflect.engine() 
 
+    cycle_data = Solution.objects.filter(problem=problem).values_list("cycles", flat=True)
+    cycle_hist = generate_histogram(cycle_data,"Average Cycles used",getBucket(user_cycles_percentile))
+    rom_data = Solution.objects.filter(problem=problem).values_list("rom", flat=True)
+    rom_hist = generate_histogram(rom_data,"Average ROM used", getBucket(user_rom_percentile))
+    ram_data = Solution.objects.filter(problem=problem).values_list("ram", flat=True)
+    ram_hist = generate_histogram(ram_data,"Average RAM used", getBucket(user_ram_percentile))
+
 
     # (percentiles, ranks, histogram)
     context = {
@@ -165,6 +210,12 @@ def solution(request, problem_id: int, code:Code):
         'cycle_percentile': p.ordinal(round(user_cycles_percentile)),
         'tests_passed': tests_passed[0],
         'tests_total': total_tests,
+        'rom_hist' : rom_hist,
+        'ram_hist' : ram_hist,
+        'cycle_hist' : cycle_hist,
     }
 
     return render(request,"judgement/solved.html", context)
+
+def getBucket(percentile):
+    return 9 - floor(percentile/10)
