@@ -222,6 +222,3 @@ def solution(request, problem_id: int, code:Code):
     }
 
     return render(request,"judgement/solved.html", context)
-
-def getBucket(percentile):
-    return 9 - floor(percentile/10)
