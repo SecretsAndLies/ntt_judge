@@ -24,6 +24,7 @@ import io
 import base64
 from django.shortcuts import render
 from django.http import HttpResponse
+import subprocess
 
 
 class Code:
@@ -33,6 +34,11 @@ class Code:
     def compile(self):
             # todo: this will spin up the assembler and report whatever it does.
             # it will populate the hack file, which will then be sent to the CPU emulator.
+        result = subprocess.run(['java', '-jar', 'judgement/AssemblerCommandLine-2.5-SNAPSHOT.jar'], capture_output=True, text=True)
+
+        # print("Standard Output: ", result.stdout)
+        # print("Standard Error: ", result.stderr)
+        # print("Return code: ", result.returncode)
         if(self.code_text=="a"):
             self.hack_code = "TBD" # this is where your compiled 1001010 will go.
             return True
