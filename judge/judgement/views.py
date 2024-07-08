@@ -55,20 +55,24 @@ class Test_Runner:
         # gathering the metrics. THIS IS WHERE THE MAGIC HAPPENS
         # if fail, populate info? expected reality? not sure.
         self.passed=True 
-        self.rom = random.randint(1,100)
-        self.ram = random.randint(1,100)
-        self.cycles = random.randint(1,1000)
+        self.rom = random.randint(1,1000)
+        self.ram = random.randint(1,1000)
+        self.cycles = random.randint(1,10000)
 
 
-def generate_histogram(data, xlabel, bin_to_highlight):
+def generate_histogram(data, xlabel, number_to_highlight):
     # Create a histogram
     plt.figure()
     plt.style.use("dark_background")
-    plt.hist(data, bins=10, color="lightsteelblue")
 
-
-    n, bins, patches = plt.hist(data, bins=10, linewidth=0.5,edgecolor='black') # https://medium.com/@arseniytyurin/how-to-make-your-histogram-shine-69e432be39ca
-    patches[bin_to_highlight].set_fc('blue')
+    n, bins, patches = plt.hist(
+        data, bins=10, linewidth=0.5,edgecolor='black',color="lightsteelblue"
+        ) # https://medium.com/@arseniytyurin/how-to-make-your-histogram-shine-69e432be39ca
+   
+    for i in range(len(bins) - 1):
+        if bins[i] <= number_to_highlight < bins[i + 1]:
+            patches[i].set_fc('blue')
+            break
 
     plt.xlabel(xlabel)
     plt.ylabel("Frequency")
@@ -130,7 +134,6 @@ def failed(request, tests_passed, total_tests):
 
 def solution(request, problem_id: int, code:Code):  
     problem = Problem.objects.get(id=problem_id)
-    solutions = Solution.objects.filter(problem=problem)
     # Tests Stuff
     tests = Test.objects.filter(problem=problem)
     tests_passed = [0] # this is a list so I can pass it by reference.
@@ -167,6 +170,8 @@ def solution(request, problem_id: int, code:Code):
     user_solution = Solution(problem=problem,cycles=cycles,rom=rom,ram=ram)
     user_solution.save()
 
+    solutions = Solution.objects.filter(problem=problem)
+
     rom_values = [solution.rom for solution in solutions]
     ram_values = [solution.ram for solution in solutions]
     cycles_values = [solution.cycles for solution in solutions]
@@ -189,12 +194,12 @@ def solution(request, problem_id: int, code:Code):
     # Prettier number formats. Used to change 1 into 1st, and 99 into 99th etc.
     p = inflect.engine() 
 
-    cycle_data = Solution.objects.filter(problem=problem).values_list("cycles", flat=True)
-    cycle_hist = generate_histogram(cycle_data,"Average Cycles used",getBucket(user_cycles_percentile))
-    rom_data = Solution.objects.filter(problem=problem).values_list("rom", flat=True)
-    rom_hist = generate_histogram(rom_data,"Average ROM used", getBucket(user_rom_percentile))
-    ram_data = Solution.objects.filter(problem=problem).values_list("ram", flat=True)
-    ram_hist = generate_histogram(ram_data,"Average RAM used", getBucket(user_ram_percentile))
+    cycle_data = solutions.values_list("cycles", flat=True)
+    cycle_hist = generate_histogram(cycle_data,"Average Cycles used",cycles)
+    rom_data = solutions.values_list("rom", flat=True)
+    rom_hist = generate_histogram(rom_data,"Average ROM used", rom)
+    ram_data = solutions.values_list("ram", flat=True)
+    ram_hist = generate_histogram(ram_data,"Average RAM used", ram)
 
 
     # (percentiles, ranks, histogram)
