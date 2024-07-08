@@ -71,7 +71,7 @@ def generate_histogram(data, xlabel, number_to_highlight):
    
    # highlight the bucket where the number is.
     for i in range(len(bins) - 1):
-        if bins[i] <= number_to_highlight < bins[i + 1]:
+        if number_to_highlight>=bins[i] and number_to_highlight < bins[i + 1]:
             patches[i].set_fc('blue')
             break
 
