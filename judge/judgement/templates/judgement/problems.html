@@ -3,12 +3,31 @@
 {% block body %}
 <h1>Select a problem</h1>
 
+        <!-- TODO add a selector to filter for problems by difficulty. -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
 {% for problem in problems %}
-<div class="problem">
-   <h3><a href="{% url 'problem' problem.id %}" > {{problem.title}} </a></h3>
-  <body>{{problem.description}}</body> 
-  <!-- TODO truncate description. -->
+<div class="col">
+  <div class="card h-100">
+    <div class="card-body">
+      <h5 class="card-title"><a href="{% url 'problem' problem.id %}">{{problem.title}}</a>    
+        <div class="float-end">
+          {% if problem.rating == 1 %}
+          Easy
+          {% elif problem.rating == 2 %}
+          Medium
+          {% elif problem.rating == 3 %}
+          Hard
+          {% endif %}
+        </div>      
+      </h5>
+      <p class="card-text">{{problem.description|truncatewords:15}}</p>
+        <!-- TODO truncate description. -->
+    </div>
   </div>
-  {% endfor %}
+</div>
 
+  {% endfor %}
+</div>
+
+  
 {% endblock %}

@@ -87,7 +87,8 @@ def generate_histogram(data, xlabel, bin_to_highlight):
 
 def index(request):
     # todo: sort problems by requested, filter problems
-    return render(request,"judgement/problems.html", {"problems":Problem.objects.all()})
+    return render(request,"judgement/problems.html", 
+                  {"problems":Problem.objects.all().order_by("rating")})
 
 def problem(request, problem_id):
     if request.method == "POST":
