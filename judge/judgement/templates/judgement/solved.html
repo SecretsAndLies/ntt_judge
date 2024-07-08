@@ -5,11 +5,11 @@
 <h1>Correct!</h1>
 <h2>Passed {{tests_passed}}/{{tests_total}} Tests.</h2>
 <!-- TODO: add collapsable to hide this data on first click. -->
-<h2>Average Cycles used: {{user_solution.cycles|floatformat:0 }} ({{cycle_percentile}} percentile, Ranked {{cycle_rank}}/{{out_of_rank}})</h2>
+<h2>Average Cycles used: {{user_solution.cycles|floatformat }} ({{cycle_percentile}} percentile, Ranked {{cycle_rank}}/{{out_of_rank}})</h2>
 <img src="data:image/png;base64,{{ cycle_hist }}" alt="Cycle histogram">
-<h2>Average ROM used: {{user_solution.rom|floatformat:0 }} ({{rom_percentile}} percentile, Ranked {{rom_rank}}/{{out_of_rank}})</h2>
+<h2>Average ROM used: {{user_solution.rom|floatformat }} ({{rom_percentile}} percentile, Ranked {{rom_rank}}/{{out_of_rank}})</h2>
 <img src="data:image/png;base64,{{ rom_hist }}" alt="ROM Histogram">
-<h2>Average RAM used: {{user_solution.ram|floatformat:0 }} ({{ram_percentile}} percentile, Ranked {{ram_rank}}/{{out_of_rank}})</h2>
+<h2>Average RAM used: {{user_solution.ram|floatformat }} ({{ram_percentile}} percentile, Ranked {{ram_rank}}/{{out_of_rank}})</h2>
 <img src="data:image/png;base64,{{ ram_hist }}" alt="RAM Histogram">
 
 {% endblock %}

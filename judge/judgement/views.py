@@ -71,7 +71,7 @@ def generate_histogram(data, xlabel, number_to_highlight):
    
    # highlight the bucket where the number is.
     for i in range(len(bins) - 1):
-        if number_to_highlight>=bins[i] and number_to_highlight < bins[i + 1]:
+        if number_to_highlight>=bins[i] and number_to_highlight <= bins[i + 1]:
             patches[i].set_fc('blue')
             break
 
@@ -114,7 +114,7 @@ def problem(request, problem_id):
     return render(request, "judgement/problem.html", {"form": form,"problem":Problem.objects.get(id=problem_id)})
 
 def calculate_percentile(rank:int, total:int)->float:
-    return (1 - (rank - 1) / total) * 100
+    return (1-(rank / total)) * 100
 
 def run_test_and_collect_results(test, roms, rams, cycles, code:Code, tests_passed, lock):
     test_result = code.run_test(test.test_file_text)
