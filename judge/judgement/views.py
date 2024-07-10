@@ -58,7 +58,7 @@ class Test_Runner:
         # gathering the metrics. THIS IS WHERE THE MAGIC HAPPENS
         # if fail, populate info? expected reality? not sure.
         self.passed=True 
-        self.rom = random.randint(1,1000)
+        self.rom = len(self.hack_code.splitlines())
         self.ram = random.randint(1,1000)
         self.cycles = random.randint(1,10000)
 
