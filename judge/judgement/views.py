@@ -32,18 +32,15 @@ class Code:
         self.code_text = code_text
 
     def compile(self):
-            # todo: this will spin up the assembler and report whatever it does.
-            # it will populate the hack file, which will then be sent to the CPU emulator.
-        result = subprocess.run(['java', '-jar', 'judgement/AssemblerCommandLine-2.5-SNAPSHOT.jar'], capture_output=True, text=True)
+        result = subprocess.run(['java', '-jar', 'judgement/AssemblerCommandLine-2.5-SNAPSHOT.jar',
+                                 self.code_text],
+                                   capture_output=True, text=True)
 
-        # print("Standard Output: ", result.stdout)
-        # print("Standard Error: ", result.stderr)
-        # print("Return code: ", result.returncode)
-        if(self.code_text=="a"):
-            self.hack_code = "TBD" # this is where your compiled 1001010 will go.
+        if(result.returncode==0):
+            self.hack_code=result.stdout
             return True
         else:
-            self.error_message="Compilation error: Error on line whatever"
+            self.error_message=result.stderr
             return False
         
     def run_test(self, test_text):
