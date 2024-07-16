@@ -3,13 +3,17 @@ from statistics import fmean
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
+import tempfile 
+import os
+import shutil
+import json
 
-from .models import Problem, Solution, Test
+
+from .models import Problem, Solution
 from scipy.stats import rankdata
 
 from .forms import CodeForm
 from time import sleep
-import threading
 
 import inflect
 
@@ -43,24 +47,52 @@ class Code:
             self.error_message=result.stderr
             return False
         
-    def run_test(self, test_text):
-        test = Test_Runner(hack_code=self.hack_code, test_code=test_text)
+    def run_test(self, problem):
+        test = Test_Runner(hack_code=self.hack_code, problem=problem)
         test.run_test()
         return test
 
 class Test_Runner:
-    def __init__(self, hack_code, test_code) -> None:
+    def __init__(self, hack_code, problem) -> None:
         self.hack_code = hack_code
-        self.test_code = test_code
+        self.tst_file_text = problem.tst_file_text
+        self.cmp_file_text = problem.cmp_file_text
 
     def run_test(self):
-        # TODO: spin up a cpu emulator, and actually run the test
-        # gathering the metrics. THIS IS WHERE THE MAGIC HAPPENS
-        # if fail, populate info? expected reality? not sure.
-        self.passed=True 
-        self.rom = len(self.hack_code.splitlines())
-        self.ram = random.randint(1,1000)
-        self.cycles = random.randint(1,10000)
+        tempdir = tempfile.mkdtemp()
+        # todo: you could change the test scripts to use the compiled stuff for effiencency.
+        try:
+            asm_file_path = os.path.join(tempdir, "assembly.hack")
+            cmp_file_path = os.path.join(tempdir, "compare.cmp")
+            tst_file_path = os.path.join(tempdir, "test.tst")
+            
+            with open(asm_file_path, 'w') as asm_file:
+                asm_file.write(self.hack_code)
+            
+            with open(cmp_file_path, 'w') as cmp_file:
+                cmp_file.write(self.cmp_file_text)
+            
+            with open(tst_file_path, 'w') as tst_file:
+                tst_file.write(self.tst_file_text)
+
+
+            timeout_cycles = 0 # 0 is infinite.
+            result = subprocess.run(['java', '-jar', 'judgement/CPUEmulator-2.5-SNAPSHOT.jar', tst_file.name, str(timeout_cycles)],
+                                capture_output=True, text=True)
+            print(result)
+        finally:
+            # clean up the directoruy.
+            shutil.rmtree(tempdir)
+        
+        self.passed=result.returncode==0
+        self.message = result.stderr
+
+        if(self.passed):
+            self.message = result.stdout.splitlines()[0]
+            stats = json.loads(result.stdout.splitlines()[1])
+            self.rom = len(self.hack_code.splitlines())
+            self.ram = stats["ram_used"]
+            self.cycles = stats["cycles_used"]
 
 
 def generate_histogram(data, xlabel, number_to_highlight):
@@ -119,57 +151,37 @@ def problem(request, problem_id):
 def calculate_percentile(rank:int, total:int)->float:
     return (1-(rank / total)) * 100
 
-def run_test_and_collect_results(test, roms, rams, cycles, code:Code, tests_passed, lock):
-    test_result = code.run_test(test.test_file_text)
+def run_test_and_collect_results(problem, roms, rams, cycles, code:Code, tests_passed, messages):
+    test_result = code.run_test(problem)
+    messages.append(test_result.message)
     if test_result.passed:
-        with lock:
-            tests_passed[0] += 1
+        tests_passed[0]=1
         roms.append(test_result.rom)
         rams.append(test_result.ram)
         cycles.append(test_result.cycles)
 
-def failed(request, tests_passed, total_tests):
-    context = {
-        'tests_passed': tests_passed[0],
-        'tests_total': total_tests,
-    }
-    return render(request,"judgement/failed.html", context)
 
 
 def solution(request, problem_id: int, code:Code):  
     problem = Problem.objects.get(id=problem_id)
-    # Tests Stuff
-    tests = Test.objects.filter(problem=problem)
-    tests_passed = [0] # this is a list so I can pass it by reference.
     roms = []
     rams = []
     cycles = []
-    threads = []
-    lock = threading.Lock()
-    # kick off a new thread for each CPU Emulator test.
-    for test in tests:
-        thread = threading.Thread(
-            target=run_test_and_collect_results, 
-            args=(test, roms, rams, cycles, code, tests_passed, lock))
-        threads.append(thread)
-        thread.start()
+    messages = []
+    tests_passed = [0]
 
-    # wait till all the threads are done before continuing.
-    for thread in threads:
-        thread.join()
+    run_test_and_collect_results(problem, roms, rams, cycles, code, tests_passed, messages)
+    if(tests_passed[0]!=1):
+        context = {'tst' : problem.tst_file_text,
+                   'cmp' : problem.cmp_file_text,
+                   'message' : messages[0],
+                   'students_out': "" # todo figure out how to get this.
+        }
+        return render(request,"judgement/failed.html", context)
 
-
-    total_tests = tests.count()
-    # if not all tests passed, return the failure page.
-    if(tests_passed[0]<total_tests):
-        return failed(request=request, 
-                      tests_passed=tests_passed, 
-                      total_tests=total_tests)
-    # Otherwise, calculate and return the sucess metrics.
-
-    rom = fmean(roms)
-    ram = fmean(rams)
-    cycles = fmean(cycles)
+    rom = roms[0]
+    ram = rams[0]
+    cycles = cycles[0]
 
     user_solution = Solution(problem=problem,cycles=cycles,rom=rom,ram=ram)
     user_solution.save()
@@ -205,6 +217,7 @@ def solution(request, problem_id: int, code:Code):
     ram_data = solutions.values_list("ram", flat=True)
     ram_hist = generate_histogram(ram_data,"Average RAM used", ram)
 
+    # TODO: Add the message from the CPU emulator to the output.
 
     # (percentiles, ranks, histogram)
     context = {
@@ -218,8 +231,6 @@ def solution(request, problem_id: int, code:Code):
         'ram_percentile': p.ordinal(round(user_ram_percentile)),
         'rom_percentile': p.ordinal(round(user_rom_percentile)),
         'cycle_percentile': p.ordinal(round(user_cycles_percentile)),
-        'tests_passed': tests_passed[0],
-        'tests_total': total_tests,
         'rom_hist' : rom_hist,
         'ram_hist' : ram_hist,
         'cycle_hist' : cycle_hist,

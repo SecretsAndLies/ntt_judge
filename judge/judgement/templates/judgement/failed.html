@@ -2,8 +2,15 @@
 {% load static %}
 
 {% block body %}
-<h1>Failed tests</h1>
-<h2>Passed {{tests_passed}}/{{tests_total}} Tests</h2>
+<h1>Your code failed the test :(</h1>
+<h1>Message from CPUEmulator: {{message}}</h1>
+<h2>Test Script</h2>
+<div>{{tst|linebreaks}}</div>
+<h2>Expected Output</h2>
+<div>{{cmp|linebreaks}}</div>
+<h2>Your Output</h2>
+<div>{{students_out|linebreaks}}</div>
+
 <!-- todo: details about the tests you failed starting with just the titles and descriptions -->
 <!-- todo: maybe a link back to the problem? -->
 {% endblock %}
