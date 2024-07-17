@@ -11,6 +11,7 @@ import json
 
 from .models import Problem, Solution
 from scipy.stats import rankdata
+import pandas as pd
 
 from .forms import CodeForm
 from time import sleep
@@ -188,9 +189,9 @@ def solution(request, problem_id: int, code:Code):
     run_test_and_collect_results(problem, roms, rams, cycles, code, tests_passed, messages, out_str)
     if(tests_passed[0]!=1):
         context = {'tst' : problem.tst_file_text,
-                   'cmp' : problem.cmp_file_text,
+                   'cmp' : pd.read_csv(io.StringIO(problem.cmp_file_text)).to_html(index=False, classes=["table", "table-striped"], justify="match-parent"),
                    'message' : messages[0],
-                   'students_out': out_str[0] # todo figure out how to get this.
+                   'students_out': pd.read_csv(io.StringIO(out_str[0])).to_html(index=False, classes=["table","table-striped"], justify="match-parent"),
         }
         return render(request,"judgement/failed.html", context)
 
