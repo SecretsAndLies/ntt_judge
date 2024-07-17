@@ -57,6 +57,7 @@ class Test_Runner:
         self.hack_code = hack_code
         self.tst_file_text = problem.tst_file_text
         self.cmp_file_text = problem.cmp_file_text
+        self.timeout_cycles = problem.timeout_cycles
 
     def run_test(self):
         tempdir = tempfile.mkdtemp()
@@ -65,7 +66,8 @@ class Test_Runner:
             asm_file_path = os.path.join(tempdir, "assembly.hack")
             cmp_file_path = os.path.join(tempdir, "compare.cmp")
             tst_file_path = os.path.join(tempdir, "test.tst")
-            
+            out_file_path = os.path.join(tempdir, "assembly.out")
+
             with open(asm_file_path, 'w') as asm_file:
                 asm_file.write(self.hack_code)
             
@@ -76,10 +78,21 @@ class Test_Runner:
                 tst_file.write(self.tst_file_text)
 
 
-            timeout_cycles = 0 # 0 is infinite.
-            result = subprocess.run(['java', '-jar', 'judgement/CPUEmulator-2.5-SNAPSHOT.jar', tst_file.name, str(timeout_cycles)],
-                                capture_output=True, text=True)
-            print(result)
+            # intializing result so I can change the variables.
+            result = subprocess.CompletedProcess(args=[], returncode=None)
+            try:
+                result = subprocess.run(['java', '-jar', 'judgement/CPUEmulator-2.5-SNAPSHOT.jar', tst_file.name, str(self.timeout_cycles)],
+                                capture_output=True, text=True, timeout=30)
+            except subprocess.TimeoutExpired:
+                result.stderr = "Timeout, ran code for 30 seconds."
+                result.returncode=1
+
+            try:
+                with open(out_file_path, 'r') as out_file:
+                    self.out_file_string = out_file.read()
+            except FileNotFoundError:
+                self.out_file_string = None  # Or handle this case as appropriate for your application
+            
         finally:
             # clean up the directoruy.
             shutil.rmtree(tempdir)
@@ -151,9 +164,10 @@ def problem(request, problem_id):
 def calculate_percentile(rank:int, total:int)->float:
     return (1-(rank / total)) * 100
 
-def run_test_and_collect_results(problem, roms, rams, cycles, code:Code, tests_passed, messages):
+def run_test_and_collect_results(problem, roms, rams, cycles, code:Code, tests_passed, messages, out_str):
     test_result = code.run_test(problem)
     messages.append(test_result.message)
+    out_str.append(test_result.out_file_string)
     if test_result.passed:
         tests_passed[0]=1
         roms.append(test_result.rom)
@@ -169,13 +183,14 @@ def solution(request, problem_id: int, code:Code):
     cycles = []
     messages = []
     tests_passed = [0]
+    out_str = []
 
-    run_test_and_collect_results(problem, roms, rams, cycles, code, tests_passed, messages)
+    run_test_and_collect_results(problem, roms, rams, cycles, code, tests_passed, messages, out_str)
     if(tests_passed[0]!=1):
         context = {'tst' : problem.tst_file_text,
                    'cmp' : problem.cmp_file_text,
                    'message' : messages[0],
-                   'students_out': "" # todo figure out how to get this.
+                   'students_out': out_str[0] # todo figure out how to get this.
         }
         return render(request,"judgement/failed.html", context)
 
