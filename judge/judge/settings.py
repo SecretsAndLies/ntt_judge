@@ -24,7 +24,7 @@ SECRET_KEY = get_random_secret_key()
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['codestuff.online']
+ALLOWED_HOSTS = ['codestuff.online','16.171.34.98']
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = True
