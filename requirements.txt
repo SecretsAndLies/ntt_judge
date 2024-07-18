@@ -9,13 +9,17 @@ matplotlib==3.9.1
 more-itertools==10.3.0
 numpy==2.0.0
 packaging==24.1
+pandas==2.2.2
 pillow==10.4.0
 plotly==5.22.0
 pyparsing==3.1.2
 python-dateutil==2.9.0.post0
+python-dotenv==1.0.1
+pytz==2024.1
 scipy==1.14.0
 six==1.16.0
 sqlparse==0.5.0
 tenacity==8.5.0
 typeguard==4.3.0
 typing_extensions==4.12.2
+tzdata==2024.1
