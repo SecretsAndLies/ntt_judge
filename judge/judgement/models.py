@@ -23,7 +23,7 @@ compare-to compare.cmp,
                                                  help_text ="""The max number of cycles you students have to run your entire test code. 0 is infinite (Python will time out the CPU Emulator after 30 seconds)."""
                                                  )
     def __str__(self):
-        return self.title + " " + self.description
+        return self.title
 
 class Solution(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)

@@ -20,7 +20,7 @@
           {% endif %}
         </div>      
       </h5>
-      <p class="card-text">{{problem.description|truncatewords:15}}</p>
+      <p class="card-text">{{problem.description|striptags|truncatewords:15}}</p>
         <!-- TODO truncate description. -->
     </div>
   </div>
