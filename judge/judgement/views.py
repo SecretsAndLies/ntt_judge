@@ -7,6 +7,7 @@ import tempfile
 import os
 import shutil
 import json
+from django.views.decorators.csrf import csrf_protect
 
 
 from .models import Problem, Solution
@@ -144,6 +145,7 @@ def index(request):
     return render(request,"judgement/problems.html", 
                   {"problems":Problem.objects.all().order_by("rating")})
 
+@csrf_protect
 def problem(request, problem_id):
     if request.method == "POST":
         form = CodeForm(request.POST)
