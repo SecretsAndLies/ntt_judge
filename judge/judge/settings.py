@@ -26,7 +26,7 @@ SECRET_KEY = '8)810zj@#^2xp=1=2rkozbv8#)gub6m1a^9qf&)d-9&x9*c2a_'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['codestuff.online']
+ALLOWED_HOSTS = ['codestuff.online','www.codestuff.online']
 
 
 # Application definition
