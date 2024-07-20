@@ -120,7 +120,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 # For development, use this
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    BASE_DIR / "judgement" / "static",
 ]
 
 # For production, use this
