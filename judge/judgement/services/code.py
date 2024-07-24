@@ -11,7 +11,7 @@ class Code:
             [
                 "java",
                 "-jar",
-                "judgement/AssemblerCommandLine-2.5-SNAPSHOT.jar",
+                "judgement/static/judgement/AssemblerCommandLine-2.5-SNAPSHOT.jar",
                 self.code_text,
             ],
             capture_output=True,

@@ -1,0 +1,39 @@
+{% extends "judgement/layout.html" %}
+{% load static %}
+
+{% block body %}
+<ul>
+    <li>
+        Download the <a href="{% static 'judgement/CPUEmulator-2.5-SNAPSHOT.jar' %}">offline simulator</a>
+        (this is a modified version of the one on the NandToTetris website). Or, if you prefer, you can also compile
+        it yourself from the <a href="https://github.com/SecretsAndLies/nand2tetris-bolt">source code</a>. Run the GUI
+        with:
+        <pre><code>java -jar CPUEmulator-2.5-SNAPSHOT.jar</code></pre>
+    </li>
+    <li>
+        The CPU emulator also has a command line mode that allows you to run test scripts the same way this
+        website does. You just need to run:
+        <pre><code>java -jar CPUEmulator-2.5-SNAPSHOT.jar test.tst 0</code></pre>
+        Here, <code>test.tst</code> is your test file (which can be downloaded from this site), and the <code>0</code>
+        argument means
+        that your code should run indefinitely without timing out. For production use on this site, some
+        problems have cycle timeouts, and we
+        also
+        time out your code after the simulator has run for a certain number of seconds.
+    </li>
+    <li>
+        Read the <a href="https://www.nand2tetris.org/_files/ugd/44046b_89a8e226476741a3b7c5204575b8a0b2.pdf">textbook
+            chapter</a>.
+    </li>
+    <li>
+        Watch the <a
+            href="https://www.youtube.com/watch?v=9Sq94l9fYqw&list=PLrDd_kMiAuNmSb-CKWQqq9oBFN_KNMTaI&index=42">lectures</a>.
+    </li>
+    <li>
+        Check out the <a href="https://www.nand2tetris.org/software">online simulator</a>.
+    </li>
+    <li>
+        Check out the <a href="https://github.com/SecretsAndLies/ntt_judge">source code</a> for this site.
+    </li>
+</ul>
+{% endblock %}

@@ -36,7 +36,7 @@ class TestRunner:
                     [
                         "java",
                         "-jar",
-                        "judgement/CPUEmulator-2.5-SNAPSHOT.jar",
+                        "judgement/static/judgement/CPUEmulator-2.5-SNAPSHOT.jar",
                         tst_file.name,
                         str(self.timeout_cycles),
                     ],

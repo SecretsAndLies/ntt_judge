@@ -56,7 +56,7 @@ def generate_histogram(data, xlabel, number_to_highlight):
 
 
 def index(request):
-    # todo: sort problems by requested, filter problems
+    # TODO: sort problems by requested, filter problems
     return render(
         request,
         "judgement/problems.html",
@@ -105,6 +105,10 @@ def run_test_and_collect_results(
         roms.append(test_result.rom)
         rams.append(test_result.ram)
         cycles.append(test_result.cycles)
+
+
+def resources(request):
+    return render(request, "judgement/resources.html")
 
 
 def solution(request, problem_id: int, code: Code):
@@ -169,8 +173,6 @@ def solution(request, problem_id: int, code: Code):
     rom_hist = generate_histogram(rom_data, "Average ROM used", rom)
     ram_data = solutions.values_list("ram", flat=True)
     ram_hist = generate_histogram(ram_data, "Average RAM used", ram)
-
-    # TODO: Add the message from the CPU emulator to the output.
 
     # (percentiles, ranks, histogram)
     context = {
