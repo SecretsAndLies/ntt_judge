@@ -22,11 +22,12 @@ env_path = load_dotenv(os.path.join(BASE_DIR, ".env"))
 load_dotenv(env_path)
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "8)810zj@#^2xp=1=2rkozbv8#)gub6m1a^9qf&)d-9&x9*c2a_"
+SECRET_KEY = get_random_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
+# add , "127.0.0.1" to this list for local testing - but don't deploy that.
 ALLOWED_HOSTS = ["codestuff.online", "www.codestuff.online"]
 
 
@@ -132,4 +133,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CSRF_TRUSTED_ORIGINS = ["https://codestuff.online"]
+CSRF_TRUSTED_ORIGINS = ["https://codestuff.online", "https://www.codestuff.online"]
+
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+X_FRAME_OPTIONS = "DENY"
