@@ -24,7 +24,7 @@ load_dotenv(env_path)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_random_secret_key()
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don't run with debug turned on in production! Use True for development.
 DEBUG = False
 
 # add , "127.0.0.1" to this list for local testing - but don't deploy that.
@@ -132,5 +132,3 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-CSRF_TRUSTED_ORIGINS = ["https://codestuff.online", "https://www.codestuff.online"]

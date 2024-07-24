@@ -2,14 +2,29 @@
 {% load static %}
 
 {% block body %}
-<h1>Your code failed the test :(</h1>
-<h1>Message from CPUEmulator: {{message}}</h1>
-<h2>Your Output</h2>
-<div>{{students_out|safe}}</div>
-<h2>Expected Output</h2>
-<div>{{cmp|safe}}</div>
-<h2>Test Script</h2>
-<pre><code>{{tst}}</code></pre>
+<div class="container my-4">
+    <h1 class="text-center text-danger mb-4">Your code failed the test :(</h1>
+    <h2 class="text-center text-warning mb-4">Message from CPUEmulator: {{message}}</h2>
 
-<!-- todo: maybe a link back to the problem? -->
+    <div class="row">
+        <div class="col-12 col-md-6 mb-4">
+            <h3 class="text-center">Your Output</h3>
+            <div class="border p-3 bg-light">{{students_out|safe}}</div>
+        </div>
+        <div class="col-12 col-md-6 mb-4">
+            <h3 class="text-center">Expected Output</h3>
+            <div class="border p-3 bg-light">{{cmp|safe}}</div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h3 class="text-center">Test Script</h3>
+        <pre class="border p-3 bg-light"><code>{{tst}}</code></pre>
+    </div>
+
+    <!-- Optional: Link back to the problem -->
+    <div class="text-center">
+        <a class="btn btn-primary" href="{% url 'index' %}">Back to Problems</a>
+    </div>
+</div>
 {% endblock %}
