@@ -1,7 +1,7 @@
 asgiref==3.8.1
 contourpy==1.2.1
 cycler==0.12.1
-Django==5.0.6
+Django>=5.0.6,<6.0.0
 fonttools==4.53.1
 inflect==7.3.1
 kiwisolver==1.4.5
