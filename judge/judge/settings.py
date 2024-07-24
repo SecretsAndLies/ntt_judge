@@ -25,7 +25,7 @@ load_dotenv(env_path)
 SECRET_KEY = get_random_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production! Use True for development.
-DEBUG = True
+DEBUG = False
 
 # add , "127.0.0.1" to this list for local testing - but don't deploy that.
 ALLOWED_HOSTS = ["codestuff.online", "www.codestuff.online"]
