@@ -28,7 +28,7 @@ SECRET_KEY = get_random_secret_key()
 DEBUG = False
 
 # add , "127.0.0.1" to this list for local testing - but don't deploy that.
-ALLOWED_HOSTS = ["codestuff.online", "www.codestuff.online"]
+ALLOWED_HOSTS = ["codestuff.online", "www.codestuff.online", "127.0.0.1"]
 
 
 # Application definition
