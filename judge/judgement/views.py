@@ -86,7 +86,11 @@ def problem(request, problem_id):
     return render(
         request,
         "judgement/problem.html",
-        {"form": form, "problem": Problem.objects.get(id=problem_id)},
+        {
+            "form": form,
+            "problem": Problem.objects.get(id=problem_id),
+            "current_page": "index",
+        },
     )
 
 
