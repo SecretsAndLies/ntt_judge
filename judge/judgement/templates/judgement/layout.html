@@ -25,10 +25,12 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="{% url 'index' %}">Problem List</a>
+            <a class="nav-link {% if current_page == 'index' %}active{% endif %}" aria-current="page"
+              href="{% url 'index' %}">Problem List</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'resources' %}">Resources</a>
+            <a class="nav-link {% if current_page == 'resources' %}active{% endif %}"
+              href="{% url 'resources' %}">Resources</a>
           </li>
         </ul>
       </div>

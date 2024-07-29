@@ -57,11 +57,11 @@ def generate_histogram(data, xlabel, number_to_highlight):
 
 def index(request):
     # TODO: sort problems by requested, filter problems
-    return render(
-        request,
-        "judgement/problems.html",
-        {"problems": Problem.objects.all().order_by("rating")},
-    )
+    context = {
+        "problems": Problem.objects.all().order_by("rating"),
+        "current_page": "index",
+    }
+    return render(request, "judgement/problems.html", context)
 
 
 @csrf_protect
@@ -108,7 +108,7 @@ def run_test_and_collect_results(
 
 
 def resources(request):
-    return render(request, "judgement/resources.html")
+    return render(request, "judgement/resources.html", {"current_page": "resources"})
 
 
 def solution(request, problem_id: int, code: Code):
@@ -133,6 +133,7 @@ def solution(request, problem_id: int, code: Code):
             "students_out": pd.read_csv(io.StringIO(out_str[0])).to_html(
                 index=False, classes=["table", "table-striped"], justify="match-parent"
             ),
+            "current_page": "index",
         }
         return render(request, "judgement/failed.html", context)
 
@@ -189,6 +190,7 @@ def solution(request, problem_id: int, code: Code):
         "rom_hist": rom_hist,
         "ram_hist": ram_hist,
         "cycle_hist": cycle_hist,
+        "current_page": "index",
     }
 
     return render(request, "judgement/solved.html", context)
