@@ -35,8 +35,8 @@
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
                 data-bs-parent="#statsAccordion">
                 <div class="accordion-body">
-                    <h2>ROM used: {{ user_solution.rom|floatformat }} ({{ rom_percentile }} percentile, Ranked {{
-                        rom_rank }}/{{ out_of_rank }})</h2>
+                    <h2>ROM used: {{ user_solution.rom|floatformat }} ({{ rom_percentile }} percentile, Ranked
+                        {{ rom_rank }}/{{ out_of_rank }})</h2>
                     <img src="data:image/png;base64,{{ rom_hist }}" alt="ROM Histogram" class="img-fluid">
                 </div>
             </div>
@@ -51,8 +51,8 @@
             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
                 data-bs-parent="#statsAccordion">
                 <div class="accordion-body">
-                    <h2>RAM used: {{ user_solution.ram|floatformat }} ({{ ram_percentile }} percentile, Ranked {{
-                        ram_rank }}/{{ out_of_rank }})</h2>
+                    <h2>RAM used: {{ user_solution.ram|floatformat }} ({{ ram_percentile }} percentile, Ranked
+                        {{ ram_rank }}/{{ out_of_rank }})</h2>
                     <img src="data:image/png;base64,{{ ram_hist }}" alt="RAM Histogram" class="img-fluid">
                 </div>
             </div>
