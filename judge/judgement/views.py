@@ -6,6 +6,7 @@ from .services.code import Code
 from .models import Problem, Solution
 from scipy.stats import rankdata
 import pandas as pd
+import numpy as np
 
 from .forms import CodeForm
 
@@ -115,46 +116,148 @@ def resources(request):
     return render(request, "judgement/resources.html", {"current_page": "resources"})
 
 
-def solution(request, problem_id: int, code: Code):
-    problem = Problem.objects.get(id=problem_id)
-    roms = []
-    rams = []
-    cycles = []
-    messages = []
-    tests_passed = [0]
-    out_str = []
+def fetch_problem(problem_id: int):
+    return Problem.objects.get(id=problem_id)
 
+
+def initialize_variables():
+    return [], [], [], [], [0], []
+
+
+def run_tests(problem, code, roms, rams, cycles, tests_passed, messages, out_str):
     run_test_and_collect_results(
         problem, roms, rams, cycles, code, tests_passed, messages, out_str
     )
-    if tests_passed[0] != 1:
-        context = {
-            "tst": problem.tst_file_text,
-            "cmp": pd.read_csv(io.StringIO(problem.cmp_file_text)).to_html(
-                index=False, classes=["table", "table-striped"], justify="match-parent"
-            ),
-            "message": messages[0],
-            "students_out": pd.read_csv(io.StringIO(out_str[0])).to_html(
-                index=False, classes=["table", "table-striped"], justify="match-parent"
-            ),
-            "current_page": "index",
-        }
-        return render(request, "judgement/failed.html", context)
 
-    rom = roms[0]
-    ram = rams[0]
-    cycles = cycles[0]
 
+def int_to_16bit_binary(number):
+    return format(number & 0xFFFF, "016b")
+
+
+def convert_array_to_bin_arr(numbers):
+    binary_strings = []
+    for number in numbers:
+        binary_value = number & 0xFFFF
+        binary_string = f"{binary_value:016b}"
+        binary_strings.append(binary_string)
+
+    binary_output = "".join(binary_strings)
+
+    binary_array = np.array([int(bit) for bit in binary_output])
+    binary_array = (
+        1 - binary_array
+    )  # Invert the binary array so the colours show up right.
+    image_array = binary_array.reshape((256, 512))
+    return image_array
+
+
+def visualise_binary(numbers):
+    buf = io.BytesIO()
+    image_array = convert_array_to_bin_arr(numbers)
+    plt.imshow(image_array, cmap="gray", vmin=0, vmax=1)
+    plt.axis("off")
+    plt.gca().set_axis_off()
+    plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+    plt.margins(0, 0)
+    plt.gca().xaxis.set_major_locator(plt.NullLocator())
+    plt.gca().yaxis.set_major_locator(plt.NullLocator())
+    plt.savefig(buf, format="png", bbox_inches="tight", pad_inches=0)
+    plt.close()
+    buf.seek(0)
+    image = base64.b64encode(buf.read()).decode("utf-8")
+    buf.close()
+
+    return image
+
+
+def visualise_binary_difference(array1, array2):
+    buf = io.BytesIO()
+
+    array1 = convert_array_to_bin_arr(array1)
+    array2 = convert_array_to_bin_arr(array2)
+
+    difference_array = array1 - array2
+
+    image_array = np.zeros((array1.shape[0], array1.shape[1], 3))
+
+    image_array[difference_array == 1] = [0, 0.8, 0.8]  # cyan
+    image_array[difference_array == -1] = [0.8, 0, 0.8]  # purple
+
+    # otherwise it should be regular black and white image.
+    for i in range(array1.shape[0]):
+        for j in range(array1.shape[1]):
+            if difference_array[i, j] == 0:
+                if array1[i, j] == 1:
+                    image_array[i, j] = [1, 1, 1]
+                else:
+                    image_array[i, j] = [0, 0, 0]
+
+    plt.imshow(image_array)
+    plt.axis("off")
+    plt.gca().set_axis_off()
+    plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+    plt.margins(0, 0)
+    plt.gca().xaxis.set_major_locator(plt.NullLocator())
+    plt.gca().yaxis.set_major_locator(plt.NullLocator())
+    plt.savefig(buf, format="png", bbox_inches="tight", pad_inches=0)
+    plt.close()
+    buf.seek(0)
+    image = base64.b64encode(buf.read()).decode("utf-8")
+    buf.close()
+
+    return image
+
+
+def handle_test_failure(problem, messages, out_str):
+    # get the index of the last line of data from the outfile.
+    # add an if , only do for screen problems RAM[16384]
+    cmp_file_pd = pd.read_csv(io.StringIO(problem.cmp_file_text))
+    out_file_pd = pd.read_csv(io.StringIO(out_str[0]))
+    expected_image = None
+    actual_image = None
+    diff = None
+    screen_problem = False
+    # if cmp file contains a screen location then visualise it
+    if "RAM[16384]" in cmp_file_pd:
+        screen_problem = True
+        last_out_row = len(out_file_pd.index) - 1
+        out_first_row = out_file_pd.iloc[last_out_row].to_numpy().flatten()
+        cmp_first_row = cmp_file_pd.iloc[last_out_row].to_numpy().flatten()
+
+        outArr = np.array(out_first_row)
+        cmpArr = np.array(cmp_first_row)
+        expected_image = visualise_binary(cmpArr)
+        actual_image = visualise_binary(outArr)
+        diff = visualise_binary_difference(cmpArr, outArr)
+    context = {
+        "tst": problem.tst_file_text,
+        "cmp": cmp_file_pd.to_html(
+            index=False, classes=["table", "table-striped"], justify="match-parent"
+        ),
+        "message": messages[0],
+        "students_out": out_file_pd.to_html(
+            index=False, classes=["table", "table-striped"], justify="match-parent"
+        ),
+        "screen_problem": screen_problem,
+        "expected_image": expected_image,
+        "actual_image": actual_image,
+        "diff_image": diff,
+        "current_page": "index",
+    }
+    return context
+
+
+def save_user_solution(problem, rom, ram, cycles):
     user_solution = Solution(problem=problem, cycles=cycles, rom=rom, ram=ram)
     user_solution.save()
+    return user_solution
 
-    solutions = Solution.objects.filter(problem=problem)
 
+def compute_ranks_and_percentiles(solutions, user_solution):
     rom_values = [solution.rom for solution in solutions]
     ram_values = [solution.ram for solution in solutions]
     cycles_values = [solution.cycles for solution in solutions]
 
-    # todo: ideally if there were a tie, we'd use the first one. You'll need a fancier sort I think.
     rom_ranks = rankdata(rom_values, method="min")
     ram_ranks = rankdata(ram_values, method="min")
     cycles_ranks = rankdata(cycles_values, method="min")
@@ -169,32 +272,73 @@ def solution(request, problem_id: int, code: Code):
     user_ram_percentile = calculate_percentile(user_ram_rank, total_solutions)
     user_cycles_percentile = calculate_percentile(user_cycles_rank, total_solutions)
 
-    # Prettier number formats. Used to change 1 into 1st, and 99 into 99th etc.
+    return {
+        "rom_rank": user_rom_rank,
+        "ram_rank": user_ram_rank,
+        "cycles_rank": user_cycles_rank,
+        "rom_percentile": user_rom_percentile,
+        "ram_percentile": user_ram_percentile,
+        "cycles_percentile": user_cycles_percentile,
+        "total_solutions": total_solutions,
+    }
+
+
+def generate_histograms(solutions, user_solution):
+    cycle_data = solutions.values_list("cycles", flat=True)
+    cycle_hist = generate_histogram(
+        cycle_data, "Average Cycles used", user_solution.cycles
+    )
+    rom_data = solutions.values_list("rom", flat=True)
+    rom_hist = generate_histogram(rom_data, "Average ROM used", user_solution.rom)
+    ram_data = solutions.values_list("ram", flat=True)
+    ram_hist = generate_histogram(ram_data, "Average RAM used", user_solution.ram)
+    return cycle_hist, rom_hist, ram_hist
+
+
+def render_failed_template(request, context):
+    return render(request, "judgement/failed.html", context)
+
+
+def render_solved_template(request, context):
+    return render(request, "judgement/solved.html", context)
+
+
+def solution(request, problem_id: int, code: Code):
+    problem = fetch_problem(problem_id)
+    roms, rams, cycles, messages, tests_passed, out_str = initialize_variables()
+
+    run_tests(problem, code, roms, rams, cycles, tests_passed, messages, out_str)
+
+    if tests_passed[0] != 1:
+        context = handle_test_failure(problem, messages, out_str)
+        return render_failed_template(request, context)
+
+    user_solution = save_user_solution(problem, roms[0], rams[0], cycles[0])
+    solutions = Solution.objects.filter(problem=problem)
+
+    ranks_and_percentiles = compute_ranks_and_percentiles(solutions, user_solution)
+
     p = inflect.engine()
 
-    cycle_data = solutions.values_list("cycles", flat=True)
-    cycle_hist = generate_histogram(cycle_data, "Average Cycles used", cycles)
-    rom_data = solutions.values_list("rom", flat=True)
-    rom_hist = generate_histogram(rom_data, "Average ROM used", rom)
-    ram_data = solutions.values_list("ram", flat=True)
-    ram_hist = generate_histogram(ram_data, "Average RAM used", ram)
+    cycle_hist, rom_hist, ram_hist = generate_histograms(solutions, user_solution)
 
-    # (percentiles, ranks, histogram)
     context = {
         "problem": problem,
         "solutions": solutions,
         "user_solution": user_solution,
-        "rom_rank": user_rom_rank,
-        "cycle_rank": user_cycles_rank,
-        "ram_rank": user_ram_rank,
-        "out_of_rank": total_solutions,
-        "ram_percentile": p.ordinal(round(user_ram_percentile)),
-        "rom_percentile": p.ordinal(round(user_rom_percentile)),
-        "cycle_percentile": p.ordinal(round(user_cycles_percentile)),
+        "rom_rank": ranks_and_percentiles["rom_rank"],
+        "cycle_rank": ranks_and_percentiles["cycles_rank"],
+        "ram_rank": ranks_and_percentiles["ram_rank"],
+        "out_of_rank": ranks_and_percentiles["total_solutions"],
+        "ram_percentile": p.ordinal(round(ranks_and_percentiles["ram_percentile"])),
+        "rom_percentile": p.ordinal(round(ranks_and_percentiles["rom_percentile"])),
+        "cycle_percentile": p.ordinal(
+            round(ranks_and_percentiles["cycles_percentile"])
+        ),
         "rom_hist": rom_hist,
         "ram_hist": ram_hist,
         "cycle_hist": cycle_hist,
         "current_page": "index",
     }
 
-    return render(request, "judgement/solved.html", context)
+    return render_solved_template(request, context)
