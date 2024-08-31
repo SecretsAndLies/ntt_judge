@@ -26,15 +26,13 @@ from django.shortcuts import render
 
 
 def generate_histogram(data, xlabel, number_to_highlight):
-    # Create a histogram
     plt.figure()
     plt.style.use("dark_background")
 
     n, bins, patches = plt.hist(
         data, bins=10, linewidth=0.5, edgecolor="black", color="lightsteelblue"
-    )
+    )  # Followed this tutorial for this https://medium.com/@arseniytyurin/how-to-make-your-histogram-shine-69e432be39ca
 
-    # highlight the bucket where the number is.
     for i in range(len(bins) - 1):
         if number_to_highlight >= bins[i] and number_to_highlight <= bins[i + 1]:
             patches[i].set_fc("blue")
@@ -42,17 +40,11 @@ def generate_histogram(data, xlabel, number_to_highlight):
 
     plt.xlabel(xlabel)
     plt.ylabel("Frequency")
-
-    # Save the histogram to a BytesIO object
     buf = io.BytesIO()
     plt.savefig(buf, format="png")
     buf.seek(0)
-
-    # Encode the image in base64
     image_base64 = base64.b64encode(buf.read()).decode("utf-8")
     buf.close()
-
-    # Render the image in the template
     return image_base64
 
 
