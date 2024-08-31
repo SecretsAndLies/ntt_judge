@@ -32,7 +32,7 @@ def generate_histogram(data, xlabel, number_to_highlight):
 
     n, bins, patches = plt.hist(
         data, bins=10, linewidth=0.5, edgecolor="black", color="lightsteelblue"
-    )  # https://medium.com/@arseniytyurin/how-to-make-your-histogram-shine-69e432be39ca
+    )
 
     # highlight the bucket where the number is.
     for i in range(len(bins) - 1):
