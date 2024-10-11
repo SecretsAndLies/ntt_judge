@@ -42,7 +42,7 @@ class TestRunner:
                     ],
                     capture_output=True,
                     text=True,
-                    timeout=30,
+                    timeout=90,
                 )
             except subprocess.TimeoutExpired:
                 result.stderr = "Timeout, ran code for 30 seconds."
