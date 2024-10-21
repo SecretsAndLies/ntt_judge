@@ -6,21 +6,12 @@
     <li>
         Download the <a href="https://drive.google.com/drive/u/0/folders/194zgYCtAIuMwwuKbpotLOzEoD8P-pJuz">offline
             simulator</a>
-        (this is a modified version of the one on the NandToTetris website). Or, if you prefer, you can also compile
-        it yourself from the <a href="https://github.com/SecretsAndLies/nand2tetris-bolt">source code</a>. Run the GUI
-        with:
-        <pre><code>java -jar CPUEmulator-2.5-SNAPSHOT.jar</code></pre>
-    </li>
-    <li>
-        The CPU emulator also has a command line mode that allows you to run test scripts the same way this
-        website does. You just need to run:
-        <pre><code>java -jar CPUEmulator-2.5-SNAPSHOT.jar test.tst 0</code></pre>
-        Here, <code>test.tst</code> is your test file (which can be downloaded from this site), and the <code>0</code>
-        argument means
-        that your code should run indefinitely without timing out. For production use on this site, some
-        problems have cycle timeouts, and we
-        also
-        time out your code after the simulator has run for a certain number of seconds.
+        (this is a modified version of the one on the NandToTetris website). Or, if you're feeling hardcore, you can also compile
+        it yourself from the <a href="https://github.com/SecretsAndLies/nand2tetris-bolt">source code</a>. Unzip it and then run the GUI
+        by running the associated script ie:
+        <pre><code>~/downloads/nand2tetris/nand2tetris/tools/CPUEmulator.sh</code></pre>
+        You'll probably need to run the below to give the current user (you) execute permission. 
+        <pre><code>chmod u+x ~/downloads/nand2tetris/nand2tetris/tools/CPUEmulator.sh</code></pre> 
     </li>
     <li>
         Read the <a href="https://www.nand2tetris.org/_files/ugd/44046b_89a8e226476741a3b7c5204575b8a0b2.pdf">textbook
