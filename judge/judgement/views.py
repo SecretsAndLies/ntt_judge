@@ -43,6 +43,7 @@ def generate_histogram(data, xlabel, number_to_highlight):
     plt.ylabel("Frequency")
     buf = io.BytesIO()
     plt.savefig(buf, format="png")
+    plt.close()
     buf.seek(0)
     image_base64 = base64.b64encode(buf.read()).decode("utf-8")
     buf.close()
