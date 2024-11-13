@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 import io
 import base64
 from django.shortcuts import render
+matplotlib.rcParams['figure.dpi'] = 256
 
 
 def generate_histogram(data, xlabel, number_to_highlight):
