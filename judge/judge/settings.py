@@ -21,8 +21,15 @@ from dotenv import load_dotenv
 env_path = load_dotenv(os.path.join(BASE_DIR, ".env"))
 load_dotenv(env_path)
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_random_secret_key()
+"""
+SECURITY WARNING: keep the secret key used in production secret!
+To generate a new secret key locally, run:
+
+python3 -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())' > secret_key
+
+from BASE_DIR.
+"""
+SECRET_KEY = open(BASE_DIR / 'secret_key').read()
 
 # SECURITY WARNING: don't run with debug turned on in production! Use True for development.
 DEBUG = False
